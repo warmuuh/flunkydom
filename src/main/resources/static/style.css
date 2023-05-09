@@ -1,0 +1,28 @@
+.inline {
+  display: inline;
+  border: 0;
+  padding: 0;
+  text-align: var(--justify-normal);
+  box-shadow: unset;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1em;
+  color: var(--color-link);
+  display: inline-block;
+  font-weight: bold;
+  text-decoration: none;
+}
+.link-button:focus {
+  outline: none;
+}
+.link-button:active {
+  color:red;
+}
+
+pre {
+  overflow-x: scroll;
+}

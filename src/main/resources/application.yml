@@ -1,0 +1,17 @@
+pebble:
+  suffix: .html
+  cache: false
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/tasks
+    username: postgres
+    password: changeme
+  main:
+    allow-circular-references: false
+  sql:
+    init:
+      mode: always
+
+db-scheduler:
+  polling-interval: 1s

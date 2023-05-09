@@ -1,0 +1,14 @@
+{% extends "layout" %}
+
+{% block content %}
+<h1> Details of Embedding </h1>
+
+<form action="/embeddings/update" method="post">
+  <input type="hidden" id="id" name="id" value="{{model.embedding.id}}">
+  <label for="title">Embedding Name</label>
+  <input type="text" placeholder="Title of the embedding" name="title" id="title" value="{{model.embedding.title}}"></input>
+  <label for="content">Content</label>
+  <textarea placeholder="your embedding content" name="content" id="content">{{model.embedding.content}}</textarea>
+  <button type="submit" id="show">Update</button>
+</form>
+{% endblock %}

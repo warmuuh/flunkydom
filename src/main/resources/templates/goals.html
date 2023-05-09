@@ -1,0 +1,41 @@
+{% extends "layout" %}
+
+{% block content %}
+<section>
+<header>
+  <h1> Your Goals </h1>
+</header>
+<table>
+  <thead>
+  <tr>
+    <th>Query</th>
+    <th>Status</th>
+    <th>Result</th>
+    <th></th>
+  </tr>
+  </thead>
+  <tbody>
+  {% for goal in model.goals %}
+  <tr>
+    <td>{{ goal.inputQuery }}</td>
+    <td>{{ goal.status }}</td>
+    <td>{{ goal.result }}</td>
+    <td><a href="/query/details?id={{goal.id}}">details</a>&nbsp;<form action="/query/delete?id={{goal.id}}" method="post" class="inline"><button type="submit" id="delete" class="link-button">delete</button></form></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</section>
+
+<section>
+  <h2>Add new Goals</h2>
+  <p>
+    <form action="/query/new" method="post">
+      <label for="query">Add some query</label>
+      <textarea placeholder="your query" name="query" id="query"></textarea>
+      <button type="submit" id="show">Submit</button>
+    </form>
+  </p>
+</section>
+
+{% endblock %}

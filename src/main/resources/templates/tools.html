@@ -1,0 +1,60 @@
+{% extends "layout" %}
+
+{% block content %}
+<section>
+  <header>
+    <h1> Your Tools Configuration </h1>
+  </header>
+  <form action="/tools/update" method="post">
+
+    <section>
+      <header>
+        <h3>OpenAi</h3>
+      </header>
+      <label for="openai.cfg"><i>Need restart for applying to agents/embeddings as well.</i></label>
+      <textarea placeholder="Tool Configuration as Json"
+                name="tools[openai].configJson"
+                id="openai.cfg">{{model.tools.openai.configJson}}</textarea>
+    </section>
+
+    <section>
+      <header>
+        <h3>Serpapi</h3>
+      </header>
+      <textarea placeholder="Tool Configuration as Json"
+                name="tools[serpapi].configJson"
+                id="serpapi.cfg">{{model.tools.serpapi.configJson}}</textarea>
+    </section>
+
+    <section>
+      <header>
+        <h3>Weather Api</h3>
+      </header>
+      <textarea placeholder="Tool Configuration as Json"
+                name="tools[weatherapi].configJson"
+                id="weatherapi.cfg">{{model.tools.weatherapi.configJson}}</textarea>
+    </section>
+
+    <section>
+      <header>
+        <h3>Home Assistant</h3>
+      </header>
+      <textarea placeholder="Tool Configuration as Json"
+                name="tools[hass].configJson"
+                id="hass.cfg">{{model.tools.hass.configJson}}</textarea>
+    </section>
+
+    <section>
+      <header>
+        <h3>Zapier</h3>
+      </header>
+      <textarea placeholder="Tool Configuration as Json"
+                name="tools[zapier].configJson"
+                id="zapier.cfg">{{model.tools.zapier.configJson}}</textarea>
+    </section>
+
+    <button type="submit" id="show">Submit</button>
+  </form>
+</section>
+
+{% endblock %}

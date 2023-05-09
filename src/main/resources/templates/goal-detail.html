@@ -1,0 +1,13 @@
+{% extends "layout" %}
+
+{% block content %}
+<h1> Details of Goal </h1>
+
+<p><b>Query:</b> {{model.goal.inputQuery}}</p>
+<p><b>State:</b> {{model.goal.status}}</p>
+<p><b>Result:</b> {{model.goal.result}}</p>
+<details>
+  <summary>Log</summary>
+  <p><pre>{{model.goal.log}}</pre></p>
+</details>
+{% endblock %}

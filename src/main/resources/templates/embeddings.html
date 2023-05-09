@@ -1,0 +1,39 @@
+{% extends "layout" %}
+
+{% block content %}
+<section>
+<header>
+  <h1> Your Embeddings </h1>
+</header>
+<table>
+  <thead>
+  <tr>
+    <th>Title</th>
+    <th></th>
+  </tr>
+  </thead>
+  <tbody>
+  {% for embedding in model.embeddings %}
+  <tr>
+    <td>{{ embedding.title }}</td>
+    <td><a href="/embeddings/details?id={{embedding.id}}">details</a>&nbsp;<form action="/embeddings/delete?id={{embedding.id}}" method="post" class="inline"><button type="submit" id="delete" class="link-button">delete</button></form></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</section>
+
+<section>
+  <h2>Add new Embeddings</h2>
+  <p>
+    <form action="/embeddings/new" method="post">
+      <label for="title">Embedding Name</label>
+      <input type="text" placeholder="Title of the embedding" name="title" id="title"></input>
+      <label for="content">Add some embedding</label>
+      <textarea placeholder="your embedding content" name="content" id="content"></textarea>
+      <button type="submit" id="show">Submit</button>
+    </form>
+  </p>
+</section>
+
+{% endblock %}
