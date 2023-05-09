@@ -6,6 +6,10 @@ This web-application contains all your AI servants (= flunkies) in one place.
 You can setup several `agents` which can act independently (like AutoGpt) to achieve `goals`. To reach 
 these `goals`, they can use `tools` and `embeddings`.
 
+The application is designed to work on multiple goals in parallel and also supports longer-running 
+flows (agents can wait for something, so flows can take days or more to finish. 
+Think of something like `Write a tweet about X every 48 hours`)
+
 ## Screenshots
 
 ### Goals Overview
