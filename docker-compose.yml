@@ -12,8 +12,8 @@ services:
       - postgres:/data/postgres
     ports:
       - "5432:5432"
-    networks:
-      - postgres
+#    networks:
+#      - postgres
     restart: unless-stopped
 
 volumes:

@@ -54,7 +54,7 @@ public class Agent {
 
   public AgentTask createInitialTask(String parentId, String query) {
     var currentPrompt = PromptProcessor.createPromptTemplate(AgentPrompt.class,
-            new AgentPrompt(query, tools.getToolDescriptions()))
+            new AgentPrompt(query, tools.getToolDescriptions(parentId)))
         .format();
     System.out.print(currentPrompt);
     AgentTask currentTask = new AgentTask(parentId, 0, currentPrompt, Optional.empty());
@@ -119,7 +119,7 @@ public class Agent {
   }
 
   public interface ToolExecutor {
-    Map<String, String> getToolDescriptions();
+    Map<String, String> getToolDescriptions(String parentId);
     ToolOutcome executeTool(String toolId, String input);
   }
 }

@@ -30,6 +30,6 @@ public class EmbeddingFunction extends Tool<Void> {
   @FunctionalInterface
   public interface EmbeddingProvider {
 
-    public String findSimilarEmbeddingFor(String input);
+    String findSimilarEmbeddingFor(String input);
   }
 }

@@ -46,7 +46,8 @@ public class GoalRepository {
         row.getString("status"),
         row.getString("result"),
         row.getString("log"),
-        row.getInt("steps")
+        row.getInt("steps"),
+        row.getString("agent")
     );
   }
 
@@ -56,11 +57,12 @@ public class GoalRepository {
 
 
   public void addNewGoal(Goal goal) {
-    jdbcTemplate.update("Insert into goals(goal_id, input_query, creation_time, status) VALUES (?,?,?,?);",
+    jdbcTemplate.update("Insert into goals(goal_id, input_query, creation_time, status, agent) VALUES (?,?,?,?,?);",
         goal.id(),
         goal.inputQuery(),
         Timestamp.from(goal.creationTime()),
-        goal.status()
+        goal.status(),
+        goal.agent()
     );
   }
 

@@ -31,8 +31,14 @@
   <h2>Add new Goals</h2>
   <p>
     <form action="/query/new" method="post">
-      <label for="query">Add some query</label>
-      <textarea placeholder="your query" name="query" id="query"></textarea>
+      <select id="agent" name="agent">
+        {% for agent in model.agents %}
+        <option value="{{agent.id}}">{{agent.name}}</option>
+        {% endfor %}
+      </select>
+
+      <label for="query">Your request</label>
+      <textarea placeholder="your request" name="query" id="query"></textarea>
       <button type="submit" id="show">Submit</button>
     </form>
   </p>

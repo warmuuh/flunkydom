@@ -1,13 +1,13 @@
 package wrm.flunkydom.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
-import wrm.flunkydom.persistence.ToolConfiguration;
-import wrm.flunkydom.persistence.ToolRepository;
+import wrm.flunkydom.persistence.AgentConfig;
+import wrm.flunkydom.persistence.AgentRepository;
+import wrm.flunkydom.persistence.Goal;
+import wrm.flunkydom.persistence.GoalRepository;
 import wrm.llm.agent.Agent.ToolExecutor;
 import wrm.llm.tools.Tool;
 import wrm.llm.tools.Tool.ToolOutcome;
@@ -16,17 +16,29 @@ import wrm.llm.tools.Tool.ToolOutcome;
 public class ToolService implements ToolExecutor {
   private final ToolConfigService toolConfigService;
   private final List<Tool<?>> tools;
+  private final GoalRepository goalRepository;
+  private final AgentRepository agentRepository;
 
-
-  public ToolService(ToolConfigService toolConfigService, List<Tool<?>> tools) {
+  public ToolService(ToolConfigService toolConfigService, List<Tool<?>> tools, GoalRepository goalRepository,
+      AgentRepository agentRepository) {
     this.toolConfigService = toolConfigService;
     this.tools = tools;
+    this.goalRepository = goalRepository;
+    this.agentRepository = agentRepository;
   }
 
+  public List<Tool<?>> getAllTools() {
+    return tools;
+  }
 
   @Override
-  public Map<String, String> getToolDescriptions() {
-    return tools.stream().collect(Collectors.toMap(
+  public Map<String, String> getToolDescriptions(String parentId) {
+    Goal goal = goalRepository.findById(parentId);
+    AgentConfig agentConfig = agentRepository.findById(goal.agent());
+
+    return tools.stream()
+      .filter(t -> agentConfig.activeTools().contains(t.getClass().getSimpleName()))
+      .collect(Collectors.toMap(
         t -> t.getId(),
         t -> t.getDescription()
     ));
@@ -34,6 +46,10 @@ public class ToolService implements ToolExecutor {
 
   @Override
   public ToolOutcome executeTool(String toolId, String input) {
+    if (toolId.equalsIgnoreCase("none")) {
+      return ToolOutcome.of("none");
+    }
+
     Tool tool = tools.stream().filter(t -> t.getId().equals(toolId)).findFirst()
         .orElseThrow(() -> new IllegalArgumentException("No tool found for id: " + toolId));
 

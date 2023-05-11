@@ -30,7 +30,8 @@ public class GoalSynchronizer implements TaskLifecycleListener {
         "FINISHED",
         task.result().get(),
         task.prompt(),
-        task.step()
+        task.step(),
+        goal.agent()
     ));
   }
 
@@ -46,7 +47,8 @@ public class GoalSynchronizer implements TaskLifecycleListener {
         "ERROR",
         e.toString(),
         task.prompt(),
-        task.step()
+        task.step(),
+        goal.agent()
     ));
   }
 
@@ -61,7 +63,8 @@ public class GoalSynchronizer implements TaskLifecycleListener {
         "PROCESSING",
         goal.result(),
         task.prompt(),
-        task.step()
+        task.step(),
+        goal.agent()
     ));
   }
 }

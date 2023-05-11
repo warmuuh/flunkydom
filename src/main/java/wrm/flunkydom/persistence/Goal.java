@@ -10,7 +10,8 @@ public record Goal (
     String status,
     String result,
     String log,
-    int steps
+    int steps,
+    String agent
     ){
 
 }

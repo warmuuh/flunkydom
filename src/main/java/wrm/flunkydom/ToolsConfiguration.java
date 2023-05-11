@@ -67,7 +67,7 @@ public class ToolsConfiguration implements ApplicationContextAware {
     ZapierFunction.getActionIds(zapierConfig.token()).forEach((id, description) -> {
       String toolId = description.replaceAll("[^A-Za-z0-9]+", "-").toLowerCase();
       ((ConfigurableApplicationContext) ctx).getBeanFactory()
-          .registerSingleton("zapier-" + id.hashCode(), new ZapierFunction(toolId, description.replace(':', ' '), id));
+          .registerSingleton("zapier-" + id.hashCode(), new ZapierFunction(id, toolId, description.replace(':', ' ')));
     });
   }
 }

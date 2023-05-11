@@ -1,0 +1,35 @@
+{% extends "layout" %}
+
+{% block content %}
+<h1> Details of Agent </h1>
+
+<form action="/agents/update" method="post">
+  <input type="hidden" name="id" value="{{model.agent.id}}">
+  <label for="name">Agent Name</label>
+  <input type="text" value="{{model.agent.name}}" name="name" id="name">
+  <label for="template">Choose Agent Template</label>
+  <select id="template" name="template">
+    {% for template in model.agentTemplates %}
+      {% if template  == model.agent.agentTemplateId %}
+      <option value="{{template}}" selected >{{template}}</option>
+      {% else %}
+      <option value="{{template}}" >{{template}}</option>
+      {% endif %}
+    {% endfor %}
+  </select>
+
+  <fieldset>
+    <legend>Choose enabled Tools</legend>
+    {% for tool in model.tools %}
+      {% if model.agent.activeTools contains tool %}
+      <input type="checkbox" name="tools" id="{{tool}}" value="{{tool}}" checked>
+      {% else %}
+      <input type="checkbox" name="tools" id="{{tool}}" value="{{tool}}">
+      {% endif %}
+
+      <label for="{{tool}}">{{tool}}</label>
+    {% endfor %}
+  </fieldset>
+  <button type="submit" id="show">Submit</button>
+</form>
+{% endblock %}

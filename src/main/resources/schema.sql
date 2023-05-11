@@ -31,6 +31,7 @@ create table IF NOT EXISTS goals
     result        text,
     log           text,
     steps         INT,
+    agent         text,
     PRIMARY KEY (goal_id)
 );
 
@@ -78,4 +79,15 @@ create table IF NOT EXISTS tool_cfgs
 (
     id          text primary key,
     config_json text
+);
+
+
+
+create table IF NOT EXISTS agents
+(
+    id             text not null,
+    agent_template text,
+    name           text not null,
+    active_tools   text,
+    PRIMARY KEY (id)
 );

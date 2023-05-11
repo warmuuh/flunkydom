@@ -1,0 +1,51 @@
+{% extends "layout" %}
+
+{% block content %}
+<section>
+<header>
+  <h1> Your Agents </h1>
+</header>
+<table>
+  <thead>
+  <tr>
+    <th>Title</th>
+    <th></th>
+  </tr>
+  </thead>
+  <tbody>
+  {% for agent in model.agents %}
+  <tr>
+    <td>{{ agent.name }}</td>
+    <td><a href="/agents/details?id={{agent.id}}">details</a>&nbsp;<form action="/agents/delete?id={{agent.id}}" method="post" class="inline"><button type="submit" id="delete" class="link-button">delete</button></form></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</section>
+
+<section>
+  <h2>Add new Agents</h2>
+  <p>
+    <form action="/agents/new" method="post">
+      <label for="name">Agent Name</label>
+      <input type="text" placeholder="Name of the agent" name="name" id="name"></input>
+      <label for="template">Choose Agent Template</label>
+      <select id="template" name="template">
+        {% for template in model.agentTemplates %}
+        <option value="{{template}}">{{template}}</option>
+        {% endfor %}
+      </select>
+
+      <label for="tools">Choose enabled Tools</label>
+      <fieldset id="tools">
+        {% for tool in model.tools %}
+        <input type="checkbox" name="tools" id="{{tool}}" value="{{tool}}" checked>
+        <label for="{{tool}}">{{tool}}</label>
+        {% endfor %}
+      </fieldset>
+      <button type="submit" id="show">Submit</button>
+    </form>
+  </p>
+</section>
+
+{% endblock %}

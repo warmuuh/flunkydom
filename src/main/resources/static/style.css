@@ -11,10 +11,11 @@
   border: none;
   cursor: pointer;
   font-size: 1em;
-  color: var(--color-link);
+  color: var(--links);
   display: inline-block;
   font-weight: bold;
   text-decoration: none;
+  margin: 0
 }
 .link-button:focus {
   outline: none;

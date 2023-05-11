@@ -15,7 +15,7 @@ public class WaitFunction extends Tool<Void> {
 
   @Override
   public ToolOutcome execute(String input, Void configuration) {
-    String[] split = input.toString().split(":");
+    String[] split = input.split(":");
     if (split.length != 2) {
       return ToolOutcome.of("Format not known. It should be HH:mm.");
     }

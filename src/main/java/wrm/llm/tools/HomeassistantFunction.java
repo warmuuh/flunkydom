@@ -1,10 +1,5 @@
 package wrm.llm.tools;
 
-import static java.util.Optional.ofNullable;
-
-import ai.knowly.langtoch.tool.Function;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Map;
 import okhttp3.MediaType;
@@ -18,12 +13,6 @@ import wrm.llm.tools.HomeassistantFunction.HomeassistConfig;
 public class HomeassistantFunction extends Tool<HomeassistConfig> {
 
   private final OkHttpClient client = new OkHttpClient();
-  Map<String, String> roomTranslations = Map.of(
-      "office", "scene.arbeiten",
-      "living room", "scene.entertainment",
-      "kitchen", "scene.gutenmorgen",
-      "bed room", "scene.schlafen"
-  );
 
   public HomeassistantFunction() {
     super("hass", """
