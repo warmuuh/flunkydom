@@ -12,6 +12,7 @@ import wrm.flunkydom.service.EmbeddingService;
 import wrm.flunkydom.service.ToolConfigService;
 import wrm.flunkydom.service.ToolService;
 import wrm.llm.agent.Agent;
+import wrm.llm.agent.AutoGptAgent;
 import wrm.llm.tools.ChatGptFunction.OpenAiConfig;
 
 @Configuration
@@ -40,7 +41,7 @@ public class AgentConfiguration {
         .setStop(List.of("Observation:"))
         .build());
 
-    return new Agent(aiTextProcessor, toolService);
+    return new AutoGptAgent(aiTextProcessor, toolService);
   }
 
 }

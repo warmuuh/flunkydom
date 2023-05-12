@@ -2,12 +2,9 @@ package wrm.flunkydom.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.List;
 import org.springframework.stereotype.Component;
 import wrm.flunkydom.persistence.ToolConfiguration;
 import wrm.flunkydom.persistence.ToolRepository;
-import wrm.llm.agent.Agent.ToolExecutor;
-import wrm.llm.tools.Tool;
 
 @Component
 public class ToolConfigService {

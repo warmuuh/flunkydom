@@ -15,20 +15,20 @@ public class AgentScheduler {
 
 
   private final DataSource dataSource;
-  private final Agent agent;
+  private final AgentRetriever agentRetriever;
   private Scheduler scheduler;
   private OneTimeTask<AgentTask> execTask;
   private TaskLifecycleListener lifecycleListener = new TaskLifecycleListener() {};
 
-  public static AgentScheduler create(DataSource dataSource, Agent agent) {
-    AgentScheduler scheduler = new AgentScheduler(dataSource, agent);
+  public static AgentScheduler create(DataSource dataSource, AgentRetriever agentRetriever) {
+    AgentScheduler scheduler = new AgentScheduler(dataSource, agentRetriever);
     scheduler.init();
     return scheduler;
   }
 
-  private AgentScheduler(DataSource dataSource, Agent agent) {
+  private AgentScheduler(DataSource dataSource, AgentRetriever agentRetriever) {
     this.dataSource = dataSource;
-    this.agent = agent;
+    this.agentRetriever = agentRetriever;
   }
 
   public void init() {
@@ -52,6 +52,7 @@ public class AgentScheduler {
   }
 
   public void schedule(String query, String parentId) {
+    Agent agent = agentRetriever.getAgentForGoal(parentId);
     AgentTask task = agent.createInitialTask(parentId, query);
     scheduler.schedule(execTask.schedulableInstance(getTaskId(task), task));
   }
@@ -61,8 +62,10 @@ public class AgentScheduler {
   }
 
   private void executeTask(TaskInstance<AgentTask> task) {
+    AgentTask data = task.getData();
     try {
-      NextTask nextTask = agent.iterateOnTask(task.getData());
+      Agent agent = agentRetriever.getAgentForGoal(data.parentId());
+      NextTask nextTask = agent.iterateOnTask(data);
       AgentTask newAgentTask = nextTask.task();
       if (!newAgentTask.isCompleted()) {
         lifecycleListener.onProcess(newAgentTask);
@@ -73,7 +76,7 @@ public class AgentScheduler {
         lifecycleListener.onCompleted(newAgentTask);
       }
     } catch (Exception e) {
-      lifecycleListener.onError(task.getData(), e);
+      lifecycleListener.onError(data, e);
     }
   }
 
@@ -85,6 +88,11 @@ public class AgentScheduler {
     default void onCompleted(AgentTask task) {}
     default void onError(AgentTask task, Exception e) {}
     default void onProcess(AgentTask task) {}
+  }
+
+  @FunctionalInterface
+  public interface AgentRetriever {
+    Agent getAgentForGoal(String goalId);
   }
 
 }

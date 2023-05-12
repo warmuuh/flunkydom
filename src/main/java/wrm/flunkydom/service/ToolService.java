@@ -8,7 +8,7 @@ import wrm.flunkydom.persistence.AgentConfig;
 import wrm.flunkydom.persistence.AgentRepository;
 import wrm.flunkydom.persistence.Goal;
 import wrm.flunkydom.persistence.GoalRepository;
-import wrm.llm.agent.Agent.ToolExecutor;
+import wrm.llm.agent.AutoGptAgent.ToolExecutor;
 import wrm.llm.tools.Tool;
 import wrm.llm.tools.Tool.ToolOutcome;
 

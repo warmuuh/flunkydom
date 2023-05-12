@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Controller;
@@ -16,7 +17,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import wrm.flunkydom.persistence.AgentConfig;
 import wrm.flunkydom.persistence.AgentRepository;
 import wrm.flunkydom.service.ToolService;
-import wrm.llm.tools.Tool;
+import wrm.llm.agent.Agent;
 
 @Controller
 @RequestMapping("/agents")
@@ -24,11 +25,12 @@ public class AgentController {
 
   private final AgentRepository agentRepository;
   private final ToolService toolService;
-  private List<String> agentTemplates = List.of("agent-template1", "agent-template2");
+  private final List<String> agentTemplates;
 
-  public AgentController(AgentRepository agentRepository, ToolService toolService) {
+  public AgentController(AgentRepository agentRepository, ToolService toolService, List<Agent> registeredAgents) {
     this.agentRepository = agentRepository;
     this.toolService = toolService;
+    this.agentTemplates = registeredAgents.stream().map(Agent::getAgentId).toList();
   }
 
   @GetMapping
