@@ -1,13 +1,20 @@
 package wrm.llm.agent;
 
 import ai.knowly.langtoch.llm.processor.openai.text.OpenAITextProcessor;
+import ai.knowly.langtoch.llm.processor.openai.text.OpenAITextProcessorConfig;
 import ai.knowly.langtoch.llm.schema.io.SingleText;
+import ai.knowly.langtoch.prompt.annotation.Prompt;
 import ai.knowly.langtoch.prompt.annotation.PromptProcessor;
+import com.theokanning.openai.service.OpenAiService;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import wrm.llm.tools.ChatGptFunction.OpenAiConfig;
 import wrm.llm.tools.Tool.ToolOutcome;
 
 
@@ -23,15 +30,15 @@ public class AutoGptAgent extends Agent {
   public static final String ANSI_CYAN = "\u001B[36m";
   public static final String ANSI_WHITE = "\u001B[37m";
   public static final Pattern ACTION_PATTERN = Pattern.compile("Action: (.*)");
-  public static final Pattern ACTION_INPUT_PATTERN = Pattern.compile("Action Input: (.*)");
-  public static final Pattern FINAL_ANSWER_PATTERN = Pattern.compile("Final Answer: (.*)");
+  public static final Pattern ACTION_INPUT_PATTERN = Pattern.compile("Action Input: (.*)", Pattern.DOTALL);
+  public static final Pattern FINAL_ANSWER_PATTERN = Pattern.compile("Final Answer: (.*)", Pattern.DOTALL);
 
-  private final OpenAITextProcessor aiTextProcessor;
   private final ToolExecutor tools;
+  private final Supplier<OpenAiConfig> aiConfigSupplier;
 
-  public AutoGptAgent(OpenAITextProcessor aiTextProcessor, ToolExecutor tools) {
+  public AutoGptAgent(ToolExecutor tools, Supplier<OpenAiConfig> aiConfigSupplier) {
     super("autogpt");
-    this.aiTextProcessor = aiTextProcessor;
+    this.aiConfigSupplier = aiConfigSupplier;
     this.tools = tools;
   }
 
@@ -48,6 +55,7 @@ public class AutoGptAgent extends Agent {
 
   @Override
   public NextTask iterateOnTask(AgentTask task) {
+    OpenAITextProcessor aiTextProcessor = createTextProcessor();
     var response = aiTextProcessor.run(SingleText.of(task.prompt())).getText();
     System.out.print(ANSI_GREEN + response + ANSI_RESET);
 
@@ -83,6 +91,19 @@ public class AutoGptAgent extends Agent {
   }
 
 
+  private OpenAITextProcessor createTextProcessor() {
+    OpenAiConfig openAiConfig = aiConfigSupplier.get();
+    var aiTextProcessor = OpenAITextProcessor.create(new OpenAiService(openAiConfig.token()));
+    aiTextProcessor.withConfig(OpenAITextProcessorConfig.builder()
+        .setModel("text-davinci-003")
+        .setMaxTokens(2048)
+        .setTemperature(0.7)
+        .setMaxTokens(256)
+        .setStream(false)
+        .setStop(List.of("Observation:"))
+        .build());
+    return aiTextProcessor;
+  }
 
   private ToolOutcome executeAction(String actionName, String actionInput) {
     ToolOutcome actionOutput = tools.executeTool(actionName, actionInput);
@@ -96,5 +117,41 @@ public class AutoGptAgent extends Agent {
   public interface ToolExecutor {
     Map<String, String> getToolDescriptions(String parentId);
     ToolOutcome executeTool(String toolId, String input);
+  }
+
+  @Prompt(
+      template = """
+        Answer the following questions as best you can. You have access to the following tools:
+                
+        {{$toolDescriptions}}
+                
+        Use the following format:
+                
+        Question: the input question you must answer
+        Thought: you should always think about what to do
+        Action: the action to take, should be one of [{{$tools}}]
+        Action Input: the input to the action
+        Observation: the result of the action
+        ... (this Thought/Action/Action Input/Observation can repeat N times)
+        Thought: I now know the final answer
+        Final Answer: the final answer to the original input question
+                
+        Begin!
+                
+        Question: {{$question}}
+        Thought: """,
+      variables = {"question", "toolDescriptions", "tools"}
+  )
+  public class AgentPrompt {
+    private final String question;
+    private final String toolDescriptions;
+    private final String tools;
+
+    public AgentPrompt(String question, Map<String, String> toolDescriptions) {
+      this.question = question;
+      this.toolDescriptions = toolDescriptions.entrySet().stream().map(t -> t.getKey() + ": " + t.getValue()).collect(
+          Collectors.joining("\n"));
+      this.tools = String.join(", ", toolDescriptions.keySet());
+    }
   }
 }

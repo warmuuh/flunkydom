@@ -64,10 +64,12 @@ public class ToolsConfiguration implements ApplicationContextAware {
     ToolConfigService toolConfigService = ctx.getBean(ToolConfigService.class);
     ZapierConfiguration zapierConfig = toolConfigService.loadToolConfig("zapier", ZapierConfiguration.class);
 
-    ZapierFunction.getActionIds(zapierConfig.token()).forEach((id, description) -> {
-      String toolId = description.replaceAll("[^A-Za-z0-9]+", "-").toLowerCase();
-      ((ConfigurableApplicationContext) ctx).getBeanFactory()
-          .registerSingleton("zapier-" + id.hashCode(), new ZapierFunction(id, toolId, description.replace(':', ' ')));
-    });
+    if (!zapierConfig.token().isEmpty()) {
+      ZapierFunction.getActionIds(zapierConfig.token()).forEach((id, description) -> {
+        String toolId = description.replaceAll("[^A-Za-z0-9]+", "-").toLowerCase();
+        ((ConfigurableApplicationContext) ctx).getBeanFactory()
+            .registerSingleton("zapier-" + id.hashCode(), new ZapierFunction(id, toolId, description.replace(':', ' ')));
+      });
+    }
   }
 }

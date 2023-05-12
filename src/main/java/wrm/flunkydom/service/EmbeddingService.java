@@ -5,18 +5,25 @@ import com.theokanning.openai.embedding.EmbeddingResult;
 import com.theokanning.openai.service.OpenAiService;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Supplier;
 import org.jetbrains.annotations.NotNull;
 import wrm.flunkydom.persistence.Embedding;
 import wrm.flunkydom.persistence.EmbeddingRepository;
+import wrm.llm.tools.ChatGptFunction.OpenAiConfig;
 
 public class EmbeddingService {
 
-  private final OpenAiService aiService;
   private final EmbeddingRepository repository;
+  private final Supplier<OpenAiConfig> configSupplier;
 
-  public EmbeddingService(OpenAiService aiService, EmbeddingRepository repository) {
-    this.aiService = aiService;
+  public EmbeddingService(EmbeddingRepository repository, Supplier<OpenAiConfig> configSupplier) {
+    this.configSupplier = configSupplier;
     this.repository = repository;
+  }
+
+  private OpenAiService createAiService() {
+    OpenAiConfig openAiConfig = configSupplier.get();
+    return new OpenAiService(openAiConfig.token());
   }
 
 
@@ -50,6 +57,7 @@ public class EmbeddingService {
 
   @NotNull
   private float[] getEmbeddingVector(String content) {
+    OpenAiService aiService = createAiService();
     EmbeddingResult calculatedEmbedding = aiService.createEmbeddings(new EmbeddingRequest(
         "text-embedding-ada-002",
         List.of(content),
