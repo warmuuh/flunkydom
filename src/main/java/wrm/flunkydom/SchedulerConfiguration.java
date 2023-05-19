@@ -9,7 +9,6 @@ import wrm.flunkydom.persistence.AgentRepository;
 import wrm.flunkydom.persistence.Goal;
 import wrm.flunkydom.persistence.GoalRepository;
 import wrm.llm.agent.Agent;
-import wrm.llm.agent.AutoGptAgent;
 import wrm.llm.agent.AgentScheduler;
 import wrm.llm.agent.AgentScheduler.TaskLifecycleListener;
 
@@ -32,7 +31,7 @@ public class SchedulerConfiguration {
               .findFirst()
               .orElseThrow(() -> new IllegalArgumentException("No agent with id " + agentConfig.agentTemplateId() + " found"));
         });
-    agentScheduler.setLifecycleListener(lifecycleListener);
+    agentScheduler.addLifecycleListener(lifecycleListener);
     return agentScheduler;
   }
 

@@ -3,12 +3,32 @@
 {% block content %}
 <h1> Details of Goal </h1>
 
+<div hx-ext="client-side-templates,sse"
+     sse-connect="/query/listen?id={{model.goal.id}}">
 <p><b>Query:</b> {{model.goal.inputQuery}}</p>
 <p><b>Agent:</b> {{model.agent}}</p>
-<p><b>State:</b> {{model.goal.status}}</p>
-<p><b>Result:</b> {{model.goal.result}}</p>
-<details>
-  <summary>Log</summary>
-  <p><pre>{{model.goal.log}}</pre></p>
-</details>
+<template id="state">
+  <p><b>State:</b> [[status]]</p>
+  <p><b>Result:</b> [[result]]</p>
+</template>
+<div     sse-swap="state"
+         hx-swap="innerHTML"
+         mustache-template="state">
+  <p><b>State:</b> {{model.goal.status}}</p>
+  <p><b>Result:</b> {{model.goal.result}}</p>
+</div>
+
+<h2>Log</h2>
+
+<template id="prompt">
+  <pre>[[prompt]]</pre>
+  <p>[[error]]</p>
+</template>
+
+<p id="prompt-table"
+    sse-swap="update"
+    hx-swap="innerHTML"
+   mustache-template="prompt" ></p>
+
+</div>
 {% endblock %}

@@ -9,6 +9,8 @@ import com.github.kagkarlsson.scheduler.task.helper.OneTimeTask;
 import com.github.kagkarlsson.scheduler.task.helper.Tasks;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.LinkedList;
+import java.util.List;
 import javax.sql.DataSource;
 
 public class AgentScheduler {
@@ -18,7 +20,7 @@ public class AgentScheduler {
   private final AgentRetriever agentRetriever;
   private Scheduler scheduler;
   private OneTimeTask<AgentTask> execTask;
-  private TaskLifecycleListener lifecycleListener = new TaskLifecycleListener() {};
+  private List<TaskLifecycleListener> lifecycleListeners = new LinkedList<>();
 
   public static AgentScheduler create(DataSource dataSource, AgentRetriever agentRetriever) {
     AgentScheduler scheduler = new AgentScheduler(dataSource, agentRetriever);
@@ -38,6 +40,7 @@ public class AgentScheduler {
         .create(dataSource, execTask)
         .serializer(new JacksonSerializer(m -> m.registerModule(new Jdk8Module())))
         .pollingInterval(Duration.ofSeconds(1))
+        .enableImmediateExecution()
         .registerShutdownHook()
         .build();
 
@@ -54,6 +57,7 @@ public class AgentScheduler {
   public void schedule(String query, String parentId) {
     Agent agent = agentRetriever.getAgentForGoal(parentId);
     AgentTask task = agent.createInitialTask(parentId, query);
+    lifecycleListeners.forEach(lf -> lf.onProcess(task));
     scheduler.schedule(execTask.schedulableInstance(getTaskId(task), task));
   }
 
@@ -68,20 +72,23 @@ public class AgentScheduler {
       NextTask nextTask = agent.iterateOnTask(data);
       AgentTask newAgentTask = nextTask.task();
       if (!newAgentTask.isCompleted()) {
-        lifecycleListener.onProcess(newAgentTask);
+        lifecycleListeners.forEach(lf -> lf.onProcess(newAgentTask));
         scheduler.schedule(
             new TaskInstance<>(execTask.getName(), getTaskId(newAgentTask), newAgentTask),
             nextTask.scheduleContinuation().orElse(Instant.now()));
       } else {
-        lifecycleListener.onCompleted(newAgentTask);
+        lifecycleListeners.forEach(lf -> lf.onCompleted(newAgentTask));
       }
     } catch (Exception e) {
-      lifecycleListener.onError(data, e);
+      lifecycleListeners.forEach(lf -> lf.onError(data, e));
     }
   }
 
-  public void setLifecycleListener(TaskLifecycleListener lifecycleListener) {
-    this.lifecycleListener = lifecycleListener;
+  public void addLifecycleListener(TaskLifecycleListener lifecycleListener) {
+    this.lifecycleListeners.add(lifecycleListener);
+  }
+  public void removeLifecycleListener(TaskLifecycleListener lifecycleListener) {
+    this.lifecycleListeners.remove(lifecycleListener);
   }
 
   public interface TaskLifecycleListener {
