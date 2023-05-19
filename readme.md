@@ -25,6 +25,7 @@ Think of something like `Write a tweet about X every 48 hours`)
 ## Agents
 
 * General-purpose agent (similar to AutoGPT)
+* An agent that creates full-fledged programs (similar to [Smol Developer](https://github.com/smol-ai/developer))
 * others planned (for researching topics, for writing etc)
 
 ## Embeddings

@@ -59,12 +59,12 @@ public class AgentController {
   @PostMapping("/new")
   public RedirectView addAgent(@RequestParam("name") String agentName,
       @RequestParam("template") String agentTemplate,
-      @RequestParam("tools") List<String> enabledTools) {
+      @RequestParam(value = "tools", required = false) List<String> enabledTools) {
     agentRepository.addNewAgentConfiguration(new AgentConfig(
         UUID.randomUUID().toString(),
         agentName,
         agentTemplate,
-        enabledTools
+        enabledTools != null ? enabledTools : List.of()
     ));
     return new RedirectView("/agents");
   }
@@ -73,12 +73,12 @@ public class AgentController {
   public RedirectView addAgent(@RequestParam("id") String id,
       @RequestParam("name") String agentName,
       @RequestParam("template") String agentTemplate,
-      @RequestParam("tools") List<String> enabledTools) {
+      @RequestParam(value = "tools", required = false) List<String> enabledTools) {
     agentRepository.updateAgentConfiguration(new AgentConfig(
         id,
         agentName,
         agentTemplate,
-        enabledTools
+        enabledTools != null ? enabledTools : List.of()
     ));
     return new RedirectView("/agents");
   }

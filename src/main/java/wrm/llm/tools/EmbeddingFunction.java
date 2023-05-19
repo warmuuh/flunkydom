@@ -8,8 +8,7 @@ public class EmbeddingFunction extends Tool<Void> {
 
   public EmbeddingFunction(EmbeddingProvider embeddingProvider) {
     super("knowledge", """
-        a knowledge base that can retrieve documents for any topics.\s
-        use this with highest priority when you lookup information""");
+        a knowledge base that can retrieve information for any topics. use this with HIGHEST priority when you need more information""");
     this.embeddingProvider = embeddingProvider;
   }
 

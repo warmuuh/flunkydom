@@ -48,7 +48,7 @@ public class AutoGptAgent extends Agent {
             new AgentPrompt(query, tools.getToolDescriptions(parentId)))
         .format();
     System.out.print(currentPrompt);
-    AgentTask currentTask = new AgentTask(parentId, 0, currentPrompt, Optional.empty());
+    AgentTask currentTask = new AgentTask(parentId, 0, currentPrompt, Optional.empty(), Map.of());
     return currentTask;
   }
 
@@ -86,7 +86,7 @@ public class AutoGptAgent extends Agent {
       }
     }
 
-    AgentTask newTask = new AgentTask(task.parentId(), task.step() + 1, newPrompt.toString(), result);
+    AgentTask newTask = new AgentTask(task.parentId(), task.step() + 1, newPrompt.toString(), result, Map.of());
     return new NextTask(newTask, scheduleContinuation);
   }
 
