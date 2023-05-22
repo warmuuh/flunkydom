@@ -1,6 +1,8 @@
 package wrm.flunkydom.persistence;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.zip.ZipFile;
 
 public record Goal (
     String id,
@@ -11,7 +13,10 @@ public record Goal (
     String result,
     String log,
     int steps,
-    String agent
+    String agent,
+    List<Artifact> artifacts
     ){
 
+
+   public record Artifact (String filename, byte[] content){}
 }

@@ -18,6 +18,17 @@
   <p><b>Result:</b> {{model.goal.result}}</p>
 </div>
 
+{% if not model.goal.artifacts.isEmpty() %}
+<h2>Artifacts</h2>
+  <ol class="vtv">
+    {% for a in model.artifacts %}
+    <li data-path="{{a.filename}}"
+        data-language="{{a.highlighter}}"
+        data-url="/query/artifact?id={{model.goal.id}}&file={{a.filename}}"></li>
+    {% endfor %}
+  </ol>
+{% endif %}
+
 <h2>Log</h2>
 
 <template id="prompt">

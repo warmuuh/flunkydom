@@ -10,9 +10,11 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,6 +24,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.util.Strings;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
+import wrm.flunkydom.persistence.Goal.Artifact;
 import wrm.llm.tools.ChatGptFunction.OpenAiConfig;
 import wrm.llm.tools.Tool.ToolOutcome;
 
@@ -43,7 +46,7 @@ public class SmolDevAgent extends Agent {
             new GenerateFilepaths(query))
         .format();
     System.out.print(currentPrompt);
-    AgentTask currentTask = new AgentTask(parentId, 0, currentPrompt, Optional.empty(), Map.of(
+    AgentTask currentTask = new AgentTask(parentId, 0, currentPrompt, Optional.empty(), List.of(), Map.of(
         "state", "genfilepaths",
         "originalPrompt", query
     ));
@@ -64,12 +67,14 @@ public class SmolDevAgent extends Agent {
               new GenerateSharedDependencies(query, filepaths))
           .format();
 
-      return new NextTask(new AgentTask(task.parentId(), 1, sharedDepPrompt, Optional.empty(), Map.of(
-          "state", "shareddependencies",
-          "originalPrompt", query,
-          "filepaths", filepaths,
-          "generateFiles", filepaths
-      )), Optional.empty());
+      return new NextTask(new AgentTask(task.parentId(), 1, sharedDepPrompt, Optional.empty(),
+          List.of(),
+          Map.of(
+              "state", "shareddependencies",
+              "originalPrompt", query,
+              "filepaths", filepaths,
+              "generateFiles", filepaths
+          )), Optional.empty());
     } else if (state.equals("shareddependencies")) {
       var sharedDependencies = aiTextProcessor.run(SingleText.of(task.prompt())).getText();
 
@@ -77,11 +82,12 @@ public class SmolDevAgent extends Agent {
 
       if (filesToGenerate.length > 0) {
         var generateFilePrompt = PromptProcessor.createPromptTemplate(GenerateFilePrompt.class,
-                new GenerateFilePrompt(query, task.customData().get("filepaths"), sharedDependencies, filesToGenerate[0], filesToGenerate[0], query))
+                new GenerateFilePrompt(query, task.customData().get("filepaths"), sharedDependencies, filesToGenerate[0],
+                    filesToGenerate[0], query))
             .format();
 
         return new NextTask(new AgentTask(task.parentId(), 2000 + filesToGenerate.length,
-            generateFilePrompt, Optional.empty(), Map.of(
+            generateFilePrompt, Optional.empty(), List.of(), Map.of(
             "state", "genfile",
             "originalPrompt", query,
             "filepaths", task.customData().get("filepaths"),
@@ -93,23 +99,16 @@ public class SmolDevAgent extends Agent {
     } else if (state.equals("genfile")) {
       String currentFile = task.customData().get("currentFile").trim();
       String sharedDependencies = task.customData().get("sharedDependencies");
-      String[] filesToGenerate =  task.customData().get("generateFiles").isEmpty()
+      String[] filesToGenerate = task.customData().get("generateFiles").isEmpty()
           ? new String[]{}
           : task.customData().get("generateFiles").split(",");
       String filepaths = task.customData().get("filepaths");
 
-      if (Strings.isNotBlank(currentFile)){
+      List<Artifact> generatedArtifacts = new LinkedList<>();
+      if (Strings.isNotBlank(currentFile)) {
         var fileContent = aiTextProcessor.run(SingleText.of(task.prompt())).getText();
+        generatedArtifacts.add(new Artifact(currentFile, fileContent.getBytes()));
 
-        Path generatedFilePath = Paths.get(System.getProperty("user.home"), "generated", currentFile);
-        generatedFilePath.getParent().toFile().mkdirs();
-        try {
-          BufferedWriter writer = new BufferedWriter(new FileWriter(generatedFilePath.toFile()));
-          writer.write(fileContent);
-          writer.close();
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
       }
 
       if (filesToGenerate.length > 0) {
@@ -119,35 +118,38 @@ public class SmolDevAgent extends Agent {
 
         String[] nextFiles = Arrays.copyOfRange(filesToGenerate, 1, filesToGenerate.length);
         return new NextTask(new AgentTask(task.parentId(), 2000 + filesToGenerate.length,
-            generateFilePrompt, Optional.empty(), Map.of(
-            "state", "genfile",
-            "originalPrompt", query,
-            "filepaths", filepaths,
-            "sharedDependencies", sharedDependencies,
-            "currentFile", filesToGenerate[0],
-            "generateFiles", String.join(",", nextFiles)
-        )), Optional.empty());
+            generateFilePrompt, Optional.empty(),
+            generatedArtifacts,
+            Map.of(
+                "state", "genfile",
+                "originalPrompt", query,
+                "filepaths", filepaths,
+                "sharedDependencies", sharedDependencies,
+                "currentFile", filesToGenerate[0],
+                "generateFiles", String.join(",", nextFiles)
+            )), Optional.empty());
       } else {
-        return new NextTask(new AgentTask(task.parentId(), 2000,
-            "", Optional.of("generated to " + Paths.get(System.getProperty("user.home"), "generated")), Map.of()),
+        return new NextTask(new AgentTask(task.parentId(),
+            2000,
+            "",
+            Optional.of("generated files:  " + filepaths),
+            generatedArtifacts,
+            Map.of()),
             Optional.empty());
       }
     }
 
-    throw new IllegalStateException("Unknown state: "  + state);
+    throw new IllegalStateException("Unknown state: " + state);
   }
-
-
 
 
   private OpenAITextProcessor createTextProcessor() {
     OpenAiConfig openAiConfig = aiConfigSupplier.get();
-    var aiTextProcessor = OpenAITextProcessor.create(new OpenAiService(openAiConfig.token()));
+    var aiTextProcessor = OpenAITextProcessor.create(new OpenAiService(openAiConfig.token(), Duration.ofSeconds(60)));
     aiTextProcessor.withConfig(OpenAITextProcessorConfig.builder()
         .setModel("text-davinci-003")
-        .setMaxTokens(2048)
+        .setMaxTokens(3000)
         .setTemperature(0.0)
-        .setMaxTokens(256)
         .setStream(false)
         .setStop(List.of("APSOJD:")) // empty list breaks
         .build());
@@ -165,7 +167,7 @@ public class SmolDevAgent extends Agent {
                     do not add any other explanation, only return a comma-separated list of strings.
                     
           {{$prompt}}
-          
+                    
           """,
       variables = {"prompt"}
   )

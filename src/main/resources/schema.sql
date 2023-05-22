@@ -32,6 +32,7 @@ create table IF NOT EXISTS goals
     log           text,
     steps         INT,
     agent         text,
+    artifacts     bytea,
     PRIMARY KEY (goal_id)
 );
 

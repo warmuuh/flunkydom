@@ -10,6 +10,7 @@ import wrm.flunkydom.service.ToolService;
 import wrm.llm.agent.Agent;
 import wrm.llm.agent.AutoGptAgent;
 import wrm.llm.agent.SmolDevAgent;
+import wrm.llm.agent.WriterAgent;
 import wrm.llm.tools.ChatGptFunction.OpenAiConfig;
 
 @Configuration
@@ -31,6 +32,11 @@ public class AgentConfiguration {
   @Bean
   Agent smoldevAgent(ToolConfigService toolConfigService, ToolService toolService) {
     return new SmolDevAgent(() -> toolConfigService.loadToolConfig("openai", OpenAiConfig.class));
+  }
+
+  @Bean
+  Agent writerAgent(ToolConfigService toolConfigService, ToolService toolService) {
+    return new WriterAgent(() -> toolConfigService.loadToolConfig("openai", OpenAiConfig.class));
   }
 
 }

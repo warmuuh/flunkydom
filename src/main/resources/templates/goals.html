@@ -17,9 +17,9 @@
   <tbody>
   {% for goal in model.goals %}
   <tr>
-    <td>{{ goal.inputQuery }}</td>
+    <td>{{ goal.inputQuery | abbreviate(100) }}</td>
     <td>{{ goal.status }}</td>
-    <td>{{ goal.result }}</td>
+    <td>{{ goal.result | abbreviate(20) }}</td>
     <td><a href="/query/details?id={{goal.id}}">details</a>&nbsp;<form action="/query/delete?id={{goal.id}}" method="post" class="inline"><button type="submit" id="delete" class="link-button">delete</button></form></td>
   </tr>
   {% endfor %}

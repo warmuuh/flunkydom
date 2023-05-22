@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import wrm.flunkydom.persistence.Goal;
 import wrm.flunkydom.persistence.GoalRepository;
+import wrm.flunkydom.utils.CollectionUtils;
 import wrm.llm.agent.AgentScheduler.TaskLifecycleListener;
 import wrm.llm.agent.AgentTask;
 
@@ -31,7 +32,8 @@ public class GoalSynchronizer implements TaskLifecycleListener {
         task.result().get(),
         task.prompt(),
         task.step(),
-        goal.agent()
+        goal.agent(),
+        CollectionUtils.merge(goal.artifacts(), task.artifacts())
     ));
   }
 
@@ -48,7 +50,8 @@ public class GoalSynchronizer implements TaskLifecycleListener {
         e.toString(),
         task.prompt(),
         task.step(),
-        goal.agent()
+        goal.agent(),
+        CollectionUtils.merge(goal.artifacts(), task.artifacts())
     ));
   }
 
@@ -64,7 +67,8 @@ public class GoalSynchronizer implements TaskLifecycleListener {
         goal.result(),
         task.prompt(),
         task.step(),
-        goal.agent()
+        goal.agent(),
+        CollectionUtils.merge(goal.artifacts(), task.artifacts())
     ));
   }
 }
