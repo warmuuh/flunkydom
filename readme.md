@@ -51,7 +51,7 @@ Secondly, it creates a plot and some chapters. As a final step, it creates conte
 
 ![Agent-Author](imgs/agent-author.png)
 
-* An agent that creates full-fledged programs (similar to [Smol Developer](https://github.com/smol-ai/developer))
+
 * others planned (for researching topics, for writing etc)
 
 ## Embeddings
@@ -69,11 +69,7 @@ embeddings are created via openai API, stored in postgres using [pgvector](https
 * ChatGpt
 
 ## Todo
-
-* Configurable Agents: create named agents that have a set of active tools (configurable).
-  * you can easily have one agent for your mails and one for twitter for example
-* Other type of agents: currently, only one agent-type is implemented
-* fix setup issues (secrets have to be in DB on first startup already *doh*)
+* abstract underlying ai (so i can switch to something else than openai)
 
 ## Resources
 
