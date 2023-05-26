@@ -12,6 +12,12 @@ spring:
   sql:
     init:
       mode: always
-
+  mvc:
+    contentnegotiation:
+      favor-parameter: true
+      parameter-name: format
+      media-types:
+        json: application/json
+        html: text/html
 db-scheduler:
   polling-interval: 1s
